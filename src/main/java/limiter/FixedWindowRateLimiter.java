@@ -2,9 +2,9 @@ package limiter;
 
 import exception.RateLimiterException;
 
-//基于计数器算法的限流工具，比如限制一秒内最多调用50次
+//基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
 //非线程安全
-public class CountRateLimiter {
+public class FixedWindowRateLimiter {
 
     private final int threshold;
 
@@ -14,7 +14,7 @@ public class CountRateLimiter {
 
     private long pointTime;
 
-    public CountRateLimiter(int threshold, int intervalSeconds) {
+    public FixedWindowRateLimiter(int threshold, int intervalSeconds) {
         this.threshold = threshold;
         this.intervalSeconds = intervalSeconds;
     }
@@ -51,13 +51,6 @@ public class CountRateLimiter {
         for(int i = 0; i < times; ++i){
             execute();
         }
-    }
-
-    public static void main(String[] args) throws Exception{
-        CountRateLimiter rateLimiter = new CountRateLimiter(10, 5);
-        rateLimiter.execute(10);
-        Thread.sleep(5000);
-        rateLimiter.execute(10);
     }
 
 }

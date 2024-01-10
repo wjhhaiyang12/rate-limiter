@@ -3,11 +3,10 @@ package limiter;
 import exception.RateLimiterException;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
-//基于计数器算法的限流工具，比如限制一秒内最多调用50次
-//线程安全 + 锁
-public class SyncCountRateLimiter {
+//基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
+//使用锁实现线程安全
+public class LockFixedWindowRateLimiter {
 
     private final int threshold;
 
@@ -17,13 +16,13 @@ public class SyncCountRateLimiter {
 
     private volatile long pointTime;
 
-    private final ReentrantLock initLock = new ReentrantLock();
+    private final AtomicInteger initializeCount = new AtomicInteger(0);
 
-    private final ReentrantLock countLock = new ReentrantLock();
+    private final AtomicInteger refreshCount = new AtomicInteger(0);
 
-    private final ReentrantLock refreshLock = new ReentrantLock();
+    private final AtomicInteger exceptionCount = new AtomicInteger(0);
 
-    public SyncCountRateLimiter(int threshold, int intervalSeconds) {
+    public LockFixedWindowRateLimiter(int threshold, int intervalSeconds) {
         this.threshold = threshold;
         this.intervalSeconds = intervalSeconds;
     }
@@ -62,37 +61,48 @@ public class SyncCountRateLimiter {
         }
     }
 
-    private boolean initalize(){
-        initLock.lock();
-        if(pointTime == 0) {
-            pointTime = System.currentTimeMillis();
-            count.incrementAndGet();
-            initLock.unlock();
-            return true;
-        }
-        initLock.unlock();
-        return false;
+    public int getCount(){
+        return count.get();
     }
 
-    private boolean refresh(long oldPointTime){
-        refreshLock.lock();
-        if(pointTime == oldPointTime) {
+    public int getInitializeCount(){
+        return initializeCount.get();
+    }
+
+    public int getRefreshCount(){
+        return refreshCount.get();
+    }
+
+    public int getExceptionCount(){
+        return exceptionCount.get();
+    }
+
+
+    private synchronized boolean initalize(){
+        if(pointTime == 0) {
+            initializeCount.incrementAndGet();
             pointTime = System.currentTimeMillis();
             count.set(1);
-            refreshLock.unlock();
             return true;
         }
-        refreshLock.unlock();
         return false;
     }
 
-    private void doExecute(){
-        countLock.lock();
+    private synchronized boolean refresh(long oldPointTime){
+        if(pointTime == oldPointTime) {
+            refreshCount.incrementAndGet();
+            pointTime = System.currentTimeMillis();
+            count.set(1);
+            return true;
+        }
+        return false;
+    }
+
+    private synchronized void doExecute(){
         if(count.get() >= threshold){
-            countLock.unlock();
+            exceptionCount.incrementAndGet();
             throw new RateLimiterException();
         }
         count.incrementAndGet();
-        countLock.unlock();
     }
 }
