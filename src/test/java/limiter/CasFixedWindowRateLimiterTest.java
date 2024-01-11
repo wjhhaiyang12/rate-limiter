@@ -52,7 +52,7 @@ public class CasFixedWindowRateLimiterTest {
                 executor.submit(new TestTask(rateLimiter, countDownLatch));
             }
             countDownLatch.await();
-            Thread.sleep(1000);
+            Thread.sleep(1100);
         }
         Assert.assertEquals(1, rateLimiter.getInitializeCount());
         Assert.assertEquals(4, rateLimiter.getRefreshCount());
@@ -77,26 +77,5 @@ public class CasFixedWindowRateLimiterTest {
         Assert.assertEquals(4, rateLimiter.getRefreshCount());
         Assert.assertEquals(100, rateLimiter.getExceptionCount());
         Assert.assertEquals(100, rateLimiter.getCount());
-    }
-
-    private static class TestTask implements Runnable {
-
-        private final CasFixedWindowRateLimiter rateLimiter;
-
-        private final CountDownLatch countDownLatch;
-
-        public TestTask(CasFixedWindowRateLimiter rateLimiter, CountDownLatch countDownLatch) {
-            this.rateLimiter = rateLimiter;
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
-            try {
-                rateLimiter.execute();
-            } finally {
-                countDownLatch.countDown();
-            }
-        }
     }
 }

@@ -10,6 +10,7 @@ public class SlideWindowRateLimiterTest {
     public void normalTest(){
         SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5);
         rateLimiter.execute(100);
+        System.out.println("dd");
     }
 
     @Test

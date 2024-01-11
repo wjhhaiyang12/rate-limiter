@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 //基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
 //使用锁实现线程安全
-public class LockFixedWindowRateLimiter {
+public class LockFixedWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 

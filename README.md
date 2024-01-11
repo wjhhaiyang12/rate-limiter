@@ -10,6 +10,7 @@
 
 ## 使用
 
+### 固定窗口限流器
 - FixedWindowRateLimiter：基于固定窗口的限流器，非线程安全
 - LockFixedWindowRateLimiter：基于固定窗口的限流器，使用锁实现线程安全
 - CasFixedWindowRateLimiter：基于固定窗口的限流器，使用CAS实现线程安全
@@ -20,7 +21,10 @@ FixedWindowRateLimiter rateLimiter = new FixedWindowRateLimiter(threshold, inter
 rateLimiter.execute(10);
 ```
 
+### 滑动窗口限流器
 - SlideWindowRateLimiter：基于滑动窗口的限流器，非线程安全
+- LockSlideWindowRateLimiter：基于滑动窗口的限流器，使用锁实现线程安全
+- CasSlideWindowRateLimiter：基于滑动窗口的限流器，使用CAS实现线程安全
 ```
 int threshold = 100; //限流次数
 int intervalSeconds = 10; //固定窗口大小
@@ -28,6 +32,9 @@ int blockNum = 10; //窗口分片数量，分片越多，限流越精准
 SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(threshold, intervalSeconds, blockNum);
 rateLimiter.execute(10);
 ```
+
+### 令牌桶限流器
+- 实现中
 
 ## 联系我
 目前还是一个写着玩玩的玩具项目，感兴趣的可以联系微信13681688983

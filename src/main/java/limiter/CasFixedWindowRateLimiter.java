@@ -2,12 +2,13 @@ package limiter;
 
 import exception.RateLimiterException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 //基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
 //使用CAS操作实现线程安全
-public class CasFixedWindowRateLimiter {
+public class CasFixedWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 
@@ -22,6 +23,8 @@ public class CasFixedWindowRateLimiter {
     private final AtomicInteger refreshCount = new AtomicInteger(0);
 
     private final AtomicInteger exceptionCount = new AtomicInteger(0);
+
+    private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
     public CasFixedWindowRateLimiter(int threshold, int intervalSeconds) {
         this.threshold = threshold;
@@ -41,6 +44,7 @@ public class CasFixedWindowRateLimiter {
             }
         }
 
+        int tempRefreshCount = refreshCount.get();
         long currentTime = System.currentTimeMillis();
         long intervalTime = currentTime - pointTime.get();
 
@@ -51,9 +55,10 @@ public class CasFixedWindowRateLimiter {
         }
 
         //新窗口，刷新时间和计数
-        if(!refresh(pointTime.get())){
-            doExecute();
-        }
+        refresh(tempRefreshCount);
+
+        //计数
+        doExecute();
     }
 
     public void execute(int times){
@@ -90,19 +95,27 @@ public class CasFixedWindowRateLimiter {
         return false;
     }
 
-    private boolean refresh(long oldPointTime){
-        while (pointTime.get() == oldPointTime) {
-            if(pointTime.compareAndSet(oldPointTime, System.currentTimeMillis())){
+    private void refresh(int tempRefreshCount){
+        while (tempRefreshCount == refreshCount.get()) {
+            if(refreshing.compareAndSet(false, true)){
+                if(tempRefreshCount != refreshCount.get()){
+                    refreshing.set(false);
+                    continue;
+                }
+                pointTime.set(System.currentTimeMillis());
                 refreshCount.incrementAndGet();
-                count.set(1);
-                return true;
+                count.set(0);
+                refreshing.set(false);
             }
         }
-        return false;
     }
 
     private void doExecute(){
         while (true) {
+            if(refreshing.get()){
+                continue;
+            }
+
             if(count.get() >= threshold){
                 exceptionCount.incrementAndGet();
                 throw new RateLimiterException();

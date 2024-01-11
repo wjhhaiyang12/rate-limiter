@@ -4,7 +4,7 @@ import exception.RateLimiterException;
 
 //基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
 //非线程安全
-public class FixedWindowRateLimiter {
+public class FixedWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 
