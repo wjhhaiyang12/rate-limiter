@@ -2,21 +2,24 @@ package limiter;
 
 import exception.RateLimiterException;
 
+import java.util.concurrent.TimeUnit;
+
 //基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
 //非线程安全
 public class FixedWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 
-    private final int intervalSeconds;
+    //窗口大小(ms)
+    private final long windowSize;
 
     private int count;
 
     private long pointTime;
 
-    public FixedWindowRateLimiter(int threshold, int intervalSeconds) {
+    public FixedWindowRateLimiter(int threshold, int windowSize, TimeUnit timeUnit) {
         this.threshold = threshold;
-        this.intervalSeconds = intervalSeconds;
+        this.windowSize = timeUnit.toMillis(windowSize);
     }
 
     public void execute(){
@@ -34,7 +37,7 @@ public class FixedWindowRateLimiter implements RateLimiter{
 
         long currentTime = System.currentTimeMillis();
         long intervalTime = currentTime - pointTime;
-        if(intervalTime < intervalSeconds * 1000L){
+        if(intervalTime < windowSize){
             //在上一个窗口里
             if(count >= threshold){
                 throw new RateLimiterException();

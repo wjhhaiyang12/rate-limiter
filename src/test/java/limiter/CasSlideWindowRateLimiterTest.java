@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class CasSlideWindowRateLimiterTest {
 
@@ -13,7 +14,7 @@ public class CasSlideWindowRateLimiterTest {
     public void normalTest() throws Exception{
         int threadCount = 100;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5);
+        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int i = 0; i < threadCount; ++i){
             executor.submit(new TestTask(rateLimiter, countDownLatch));
@@ -29,7 +30,7 @@ public class CasSlideWindowRateLimiterTest {
     public void exceptionTest() throws Exception{
         int threadCount = 120;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5);
+        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int i = 0; i < threadCount; ++i){
             executor.submit(new TestTask(rateLimiter, countDownLatch));
@@ -44,7 +45,7 @@ public class CasSlideWindowRateLimiterTest {
     @Test
     public void timeIntervalTest() throws Exception{
         int threadCount = 20;
-        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5);
+        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 5; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);
@@ -63,7 +64,7 @@ public class CasSlideWindowRateLimiterTest {
     @Test
     public void timeIntervalExceptionTest() throws Exception{
         int threadCount = 30;
-        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5);
+        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 10; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);
@@ -82,7 +83,7 @@ public class CasSlideWindowRateLimiterTest {
     @Test
     public void timeIntervalExceptionTestB() throws Exception{
         int threadCount = 30;
-        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5);
+        CasSlideWindowRateLimiter rateLimiter = new CasSlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 5; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);

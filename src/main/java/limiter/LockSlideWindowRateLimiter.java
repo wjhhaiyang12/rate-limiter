@@ -3,6 +3,7 @@ package limiter;
 import exception.RateLimiterException;
 
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,11 +13,11 @@ public class LockSlideWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 
-    private final int intervalSeconds;
+    private final long windowSize;
 
     private final int blockNum;
 
-    private final int blockSize;
+    private final long blockSize;
 
     //记录每个小窗口的计数
     private final LinkedList<AtomicInteger> countList;
@@ -32,15 +33,15 @@ public class LockSlideWindowRateLimiter implements RateLimiter{
 
     private final AtomicInteger exceptionCount = new AtomicInteger(0);
 
-    public LockSlideWindowRateLimiter(int threshold, int intervalSeconds, int blockNum) {
+    public LockSlideWindowRateLimiter(int threshold, int windowSize, int blockNum, TimeUnit timeUnit) {
         this.threshold = threshold;
-        this.intervalSeconds = intervalSeconds;
+        this.windowSize = timeUnit.toMillis(windowSize);
         this.blockNum = blockNum;
         this.countList = new LinkedList<>();
         for(int i = 0; i < blockNum; ++i){
             this.countList.add(new AtomicInteger(0));
         }
-        this.blockSize = intervalSeconds * 1000 / blockNum;
+        this.blockSize = this.windowSize / blockNum;
     }
 
     public void execute() {
@@ -54,7 +55,7 @@ public class LockSlideWindowRateLimiter implements RateLimiter{
         }
 
         long intervalTime = System.currentTimeMillis() - startTime.get();
-        int index = (int)intervalTime / blockSize;
+        int index = (int) (intervalTime / blockSize);
 
         //前进到下一个时间窗口，丢弃前面窗口的计数
         if(index >= blockNum){
@@ -89,7 +90,7 @@ public class LockSlideWindowRateLimiter implements RateLimiter{
 
     private synchronized void forwardNextWindow(){
         long intervalTime = System.currentTimeMillis() - startTime.get();
-        int index = (int)intervalTime / blockSize;
+        int index = (int) (intervalTime / blockSize);
         if(index >= blockNum) {
             for (int i = index; i >= blockNum; i--) {
                 forwardCount.incrementAndGet();

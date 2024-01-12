@@ -4,11 +4,13 @@ import exception.RateLimiterException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 public class SlideWindowRateLimiterTest {
 
     @Test
     public void normalTest(){
-        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5);
+        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         rateLimiter.execute(100);
         System.out.println("dd");
     }
@@ -16,7 +18,7 @@ public class SlideWindowRateLimiterTest {
     @Test
     public void exceptionTest(){
         try {
-            SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5);
+            SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
             rateLimiter.execute(101);
         } catch (Exception e) {
             Assert.assertEquals(RateLimiterException.class.getName(), e.getClass().getName());
@@ -25,7 +27,7 @@ public class SlideWindowRateLimiterTest {
 
     @Test
     public void intervalTest() throws Exception{
-        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5);
+        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         rateLimiter.execute(100);
         Thread.sleep(5000);
         rateLimiter.execute(100);
@@ -33,7 +35,7 @@ public class SlideWindowRateLimiterTest {
 
     @Test
     public void intervalExceptionTest() throws Exception{
-        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5);
+        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         rateLimiter.execute(100);
         Thread.sleep(3000);
         try {
@@ -45,7 +47,7 @@ public class SlideWindowRateLimiterTest {
 
     @Test
     public void fastExceptionTest() throws Exception{
-        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5);
+        SlideWindowRateLimiter rateLimiter = new SlideWindowRateLimiter(100, 5, 5, TimeUnit.SECONDS);
         rateLimiter.execute(1);
         Thread.sleep(4000);
         rateLimiter.execute(99);

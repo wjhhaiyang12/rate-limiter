@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class LockFixedWindowRateLimiterTest {
 
@@ -13,7 +14,7 @@ public class LockFixedWindowRateLimiterTest {
     public void normalTest() throws Exception{
         int threadCount = 100;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1);
+        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int i = 0; i < threadCount; ++i){
             executor.submit(new TestTask(rateLimiter, countDownLatch));
@@ -29,7 +30,7 @@ public class LockFixedWindowRateLimiterTest {
     public void overCountTest() throws Exception{
         int threadCount = 120;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1);
+        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int i = 0; i < threadCount; ++i){
             executor.submit(new TestTask(rateLimiter, countDownLatch));
@@ -44,7 +45,7 @@ public class LockFixedWindowRateLimiterTest {
     @Test
     public void timeWindowNormalTest() throws Exception{
         int threadCount = 100;
-        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1);
+        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 5; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);
@@ -63,7 +64,7 @@ public class LockFixedWindowRateLimiterTest {
     @Test
     public void timeWindowOverCountTest() throws Exception{
         int threadCount = 120;
-        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1);
+        LockFixedWindowRateLimiter rateLimiter = new LockFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 5; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);

@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class CasFixedWindowRateLimiterTest {
 
@@ -13,7 +14,7 @@ public class CasFixedWindowRateLimiterTest {
     public void normalTest() throws Exception{
         int threadCount = 100;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1);
+        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int i = 0; i < threadCount; ++i){
             executor.submit(new TestTask(rateLimiter, countDownLatch));
@@ -29,7 +30,7 @@ public class CasFixedWindowRateLimiterTest {
     public void overCountTest() throws Exception{
         int threadCount = 120;
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1);
+        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int i = 0; i < threadCount; ++i){
             executor.submit(new TestTask(rateLimiter, countDownLatch));
@@ -44,7 +45,7 @@ public class CasFixedWindowRateLimiterTest {
     @Test
     public void timeWindowNormalTest() throws Exception{
         int threadCount = 100;
-        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1);
+        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 5; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);
@@ -63,7 +64,7 @@ public class CasFixedWindowRateLimiterTest {
     @Test
     public void timeWindowOverCountTest() throws Exception{
         int threadCount = 120;
-        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1);
+        CasFixedWindowRateLimiter rateLimiter = new CasFixedWindowRateLimiter(100, 1, TimeUnit.SECONDS);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         for(int j = 0; j < 5; ++j) {
             CountDownLatch countDownLatch = new CountDownLatch(threadCount);

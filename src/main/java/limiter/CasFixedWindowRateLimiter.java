@@ -2,6 +2,7 @@ package limiter;
 
 import exception.RateLimiterException;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -12,7 +13,7 @@ public class CasFixedWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 
-    private final int intervalSeconds;
+    private final long windowSize;
 
     private final AtomicInteger count = new AtomicInteger(0);
 
@@ -26,9 +27,9 @@ public class CasFixedWindowRateLimiter implements RateLimiter{
 
     private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
-    public CasFixedWindowRateLimiter(int threshold, int intervalSeconds) {
+    public CasFixedWindowRateLimiter(int threshold, int windowSize, TimeUnit timeUnit) {
         this.threshold = threshold;
-        this.intervalSeconds = intervalSeconds;
+        this.windowSize = timeUnit.toMillis(windowSize);
     }
 
     public void execute(){
@@ -49,7 +50,7 @@ public class CasFixedWindowRateLimiter implements RateLimiter{
         long intervalTime = currentTime - pointTime.get();
 
         //在上一个窗口里
-        if(intervalTime < intervalSeconds * 1000L){
+        if(intervalTime < windowSize){
             doExecute();
             return;
         }

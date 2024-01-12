@@ -2,6 +2,7 @@ package limiter;
 
 import exception.RateLimiterException;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //基于固定窗口的计数器算法的限流工具，比如限制一秒内最多调用50次
@@ -10,7 +11,7 @@ public class LockFixedWindowRateLimiter implements RateLimiter{
 
     private final int threshold;
 
-    private final int intervalSeconds;
+    private final long windowSize;
 
     private AtomicInteger count = new AtomicInteger(0);
 
@@ -22,9 +23,9 @@ public class LockFixedWindowRateLimiter implements RateLimiter{
 
     private final AtomicInteger exceptionCount = new AtomicInteger(0);
 
-    public LockFixedWindowRateLimiter(int threshold, int intervalSeconds) {
+    public LockFixedWindowRateLimiter(int threshold, int windowSize, TimeUnit timeUnit) {
         this.threshold = threshold;
-        this.intervalSeconds = intervalSeconds;
+        this.windowSize = timeUnit.toMillis(windowSize);
     }
 
     public void execute(){
@@ -44,7 +45,7 @@ public class LockFixedWindowRateLimiter implements RateLimiter{
         long intervalTime = currentTime - pointTime;
 
         //在上一个窗口里
-        if(intervalTime < intervalSeconds * 1000L){
+        if(intervalTime < windowSize){
             doExecute();
             return;
         }
